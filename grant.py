@@ -14,6 +14,7 @@ from langchain_core.vectorstores import InMemoryVectorStore
 import argparse
 argparser = argparse.ArgumentParser(description="Parse a grant file (.pdf)")
 argparser.add_argument("filepath", type=str, help="Path to the grant pdf file")
+argparser.add_argument("k", type=int, help="# nearest neighbors to retrieve for similarity search")
 args = argparser.parse_args()
 print("Loading PDF...")
 pages = parse(args.filepath)
@@ -40,7 +41,7 @@ for query in queries:
     print("Q: ", question)                
     
     print("Similar searching...")
-    context = sim_search(question, 2, vector_store)
+    context = sim_search(question, args.k, vector_store)
     py_obj = determine_pyobj(query)
     print("Got context")
     

@@ -7,7 +7,7 @@
 - issues: needs contextual compression
 '''
 def sim_search(query, k, vector_store):    
-    docs = vector_store.similarity_search(query, k=2) # TODO can play experiment w/ k value
+    docs = vector_store.similarity_search(query, k) # TODO can play experiment w/ k value
     context = ""
     for doc in docs:
         # print(f'Page {doc.metadata["page"]}: {doc.page_content}\n')
