@@ -2,3 +2,6 @@
 *.pdf
 *.json
 __pycache__
+.env
+epa_runs
+ks_runs

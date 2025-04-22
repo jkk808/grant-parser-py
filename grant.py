@@ -1,3 +1,7 @@
+'''
+    main script that generates json of grant data
+'''
+
 from parser import parse
 from rag import *
 
@@ -6,8 +10,14 @@ from langchain_ollama import OllamaEmbeddings
 
 # embed docs & embed input to compare vectors (stores in memory)
 from langchain_core.vectorstores import InMemoryVectorStore
+
+import argparse
+argparser = argparse.ArgumentParser(description="Parse a grant file (.pdf)")
+argparser.add_argument("filepath", type=str, help="Path to the grant pdf file")
+args = argparser.parse_args()
 print("Loading PDF...")
-pages = parse()
+pages = parse(args.filepath)
+
 embeddings = OllamaEmbeddings(model="nomic-embed-text")
 vector_store = InMemoryVectorStore.from_documents(pages, embeddings)
 

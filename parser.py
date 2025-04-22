@@ -1,10 +1,8 @@
 # import asyncio # async functionality in python (dynamic loading)
 from langchain_community.document_loaders import PyPDFLoader
 
-def parse():
-    file_path = "./us_epa_grant_agreement.pdf"
-    # file_path = "./ks_grant_reward.pdf"
-    loader = PyPDFLoader(file_path)
+def parse(file):
+    loader = PyPDFLoader(file)
     pages = []
     # async for page in loader.alazy_load():
     for page in loader.lazy_load():

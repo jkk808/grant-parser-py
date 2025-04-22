@@ -1,4 +1,6 @@
 # grant-parser-py
 Langchain Python for parsing grant PDFs and returning JSON of wanted information
 
-- uses Ollama embedding model (nomic-embed-text) and llm (gemma3)
+- embedding model **nomic-embed-text**, chat llm **gemma3**
+
+### python grant.py \<path to pdf\>

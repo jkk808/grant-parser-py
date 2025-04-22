@@ -1,3 +1,7 @@
+'''
+    script that holds all model-related functions
+'''
+
 ## SIMILARITY SEARCH STAGE
 '''
 - issues: needs contextual compression
@@ -12,16 +16,22 @@ def sim_search(query, k, vector_store):
     return context
 
 ## LLM STAGE
-from langchain_ollama import OllamaLLM
+import os
+from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.output_parsers import JsonOutputParser
 from pydantic import BaseModel, Field
 from typing import Dict
+from dotenv import load_dotenv
 
 def retrieve_data_from_llm(question, context, py_obj):
-    llm = OllamaLLM(
-        model="gemma3"
+    load_dotenv()
+    llm = ChatOpenAI(
+        model=os.getenv("MODEL"),
+        temperature=0,
+        api_key=os.getenv("OPENAI_KEY"),
+        base_url=os.getenv("OPENAI_BASE_URL")
     )    
     
     output = JsonOutputParser(pydantic_object=py_obj)
