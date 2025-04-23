@@ -24,12 +24,12 @@ vector_store = InMemoryVectorStore.from_documents(pages, embeddings)
 #     # "budget": ["per position", "per position program"]
 # }
 llm_queries = {
-    "general": "What is the full name of the grant? List all projects or programs stated, including each project's name, start date, and end date.",
-    "spending": "What is the total grant amount? Break down the spending into: fringe benefits, indirect costs, travel, equipment, and other. For “other,” provide a list of items with their names and cost. Return only valid JSON."
+    "general": "What is the title of the grant? List all programs or projects stated, including each project or programs' name, start dates/periods and end dates/periods.",
+    "spending": "What is the total award amount? Break down the spending into: fringe benefits, indirect costs, travel, equipment, and other. For “other,” provide a list of items with their names and cost."
 
 }
 vec_queries = {
-    "general": "Information about the grant's official name, and the names, start and end dates of any funded projects or programs.",
+    "general": "Information about any programs' or projects' name/title, the start and end dates/periods, and the official name of the grant agreement.",
     "spending": "Details about total funding, and how the grant money is allocated — including fringe benefits, indirect costs, travel, equipment, and other types of spending."
 }
 import json
@@ -47,7 +47,7 @@ for query in llm_queries:
     print("Q: ", vec_question)                
     context = sim_search(vec_question, args.k, vector_store)
     py_obj = determine_pyobj(query)
-    print("Got context")
+    print("Context: ", context)
     
     print("Asking LLM...")
     llm_question = llm_queries[query]

@@ -24,6 +24,23 @@ from langchain_core.output_parsers import JsonOutputParser, StrOutputParser
 from pydantic import BaseModel, Field
 from typing import Dict
 from dotenv import load_dotenv
+import re
+
+# use regex to clean output from llm (consistently gives invalid formats)
+class CleanJsonOutputParser(JsonOutputParser):
+    def parse_result(self, result):
+        text = result[0].text.strip()
+
+        text = re.sub(r"^json[:\s]*", "", text, flags=re.IGNORECASE)
+        text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
+        text = re.sub(r"\s*```$", "", text.strip())        
+        match = re.search(r"{.*}", text, flags=re.DOTALL)
+        if match:
+            text = match.group(0)
+
+        result[0].text = text.strip()
+        return super().parse_result(result)
+        
 
 def retrieve_data_from_llm(question, context, py_obj):
     load_dotenv()
@@ -34,7 +51,7 @@ def retrieve_data_from_llm(question, context, py_obj):
         base_url=os.getenv("OPENAI_BASE_URL")
     )    
     
-    output = JsonOutputParser(pydantic_object=py_obj)
+    output = CleanJsonOutputParser(pydantic_object=py_obj)
 
     # system prompt
     prompt = PromptTemplate(
@@ -45,18 +62,27 @@ Use the context provided to answer the question. Format your output as **valid J
 
 ‼️ Important instructions:
 - ONLY report the variables stated in the format and NOTHING MORE. Do NOT report any other variables!
-- Do NOT include explanations, comments, or text before or after the JSON curly braces like `json ... `.
-- Return a valid JSON object only. Make sure it can be parsed with json.loads().
+- DO NOT include "json: ", "json= ", or any label before the JSON data! This will make it unparseable.
+- DO NOT wrap the response in Markdown code blocks (like ```json). 
+- Your response must start with `{{` and end with `}}`. 
+- Do NOT include explanations, comments, or text before or after the JSON curly braces.
 - If a value is not found, use an empty string or an empty list.
+
+Only extract the specific fields requested in the schema below. 
+Do not include extra data. 
+Do not make assumptions. 
+If a field is not clearly available in the context, return it as null or an empty list.
+
+Only use the context provided. Do not invent or infer data.
+
+Format:
+{format_instructions}
 
 Context:
 {context}
 
 Question:
 {question}
-
-Format:
-{format_instructions}
     """,
     input_variables=["context", "question"],
     partial_variables={"format_instructions": output.get_format_instructions()},)
